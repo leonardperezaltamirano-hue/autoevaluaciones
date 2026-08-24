@@ -273,18 +273,16 @@
 
 <div class="container">
     <div class="header">
-        <h1>🌟Autoevaluación de Tecnología🌟</h1>
+        <h1>🌟 Autoevaluación de Tecnología 🌟</h1>
         <p>¡Lee detenidamente cada pregunta y marca sinceramente tu respuesta!</p>
     </div>
 
-    <!-- Iframe invisible para procesar la petición sin salir de la página -->
     <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){onSuccess();}"></iframe>
 
-    <!-- FORMULARIO APUNTANDO A TU NUEVO EXEC -->
     <form id="evaluationForm" action="https://script.google.com/macros/s/AKfycby1uPN7Ngj11QWsOkR2dqalJchJwEgtwZ_6Kmw39kHyK4xoVSjWhy2DlkqwLumBbO7l-g/exec" method="POST" target="hidden_iframe">
         
         <div class="input-group">
-            <label for="studentName">👤 Apellido y Nombre:</label>
+            <label for="studentName">👤 Apellidos y Nombres:</label>
             <input type="text" id="studentName" name="estudiante" required placeholder="Escribe aquí tu nombre completo...">
         </div>
 
@@ -463,7 +461,7 @@
         
         const btn = document.getElementById('btnSubmit');
         btn.disabled = true;
-        btn.innerText = 'Enviando respuestas a Mr. Leo... ⏳';
+        btn.innerText = 'Enviando respuestas... ⏳';
     });
 
     function onSuccess() {
