@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Autoevaluación de Tecnología 🚀</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js para las gráficas analíticas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root {
@@ -41,6 +43,22 @@
             padding: 25px;
             box-shadow: 0 12px 30px rgba(0,0,0,0.15);
             border: 5px solid var(--purple);
+            position: relative;
+        }
+
+        /* Botón de Administración */
+        .btn-admin-floating {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--purple);
+            color: white;
+            border: 2px solid var(--dark);
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-family: 'Fredoka One', cursive;
+            cursor: pointer;
+            box-shadow: 0 3px 0 var(--dark);
         }
 
         .header {
@@ -50,6 +68,7 @@
             padding: 20px;
             border-radius: 22px;
             border: 3px dashed var(--purple);
+            margin-top: 20px;
         }
 
         .header h1 {
@@ -81,7 +100,7 @@
             font-size: 1.2rem;
         }
 
-        .input-group input[type="text"] {
+        .input-group input[type="text"], .input-group input[type="password"] {
             width: 100%;
             padding: 14px 16px;
             border: 3px solid var(--purple);
@@ -208,14 +227,8 @@
             margin-top: 10px;
         }
 
-        .btn-submit:hover {
-            background: #FF6B81;
-        }
-
-        .btn-submit:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 #2F3542;
-        }
+        .btn-submit:hover { background: #FF6B81; }
+        .btn-submit:active { transform: translateY(4px); box-shadow: 0 2px 0 #2F3542; }
 
         .modal-overlay {
             display: none;
@@ -243,6 +256,14 @@
             animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
+        .admin-dashboard {
+            max-width: 900px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            text-align: left;
+        }
+
         @keyframes popIn {
             0% { transform: scale(0.5); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
@@ -264,6 +285,33 @@
             box-shadow: 0 4px 0 #2F3542;
         }
 
+        /* Estilos de Tablas y Gráficos del Panel Admin */
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .admin-table th, .admin-table td {
+            border: 2px solid var(--purple);
+            padding: 8px;
+            text-align: center;
+        }
+
+        .admin-table th {
+            background-color: var(--yellow);
+            font-family: 'Fredoka One', cursive;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 2px solid var(--purple);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
         @media (max-width: 480px) {
             .options-container { flex-direction: column; }
         }
@@ -272,6 +320,8 @@
 <body>
 
 <div class="container">
+    <button class="btn-admin-floating" onclick="openAdminLogin()">🔐 Admin</button>
+
     <div class="header">
         <h1>🌟 Autoevaluación de Tecnología 🌟</h1>
         <p>¡Lee detenidamente cada pregunta y marca sinceramente tu respuesta!</p>
@@ -404,12 +454,72 @@
     </form>
 </div>
 
+<!-- Modal de Alerta/Confirmación Alumno -->
 <div id="customModal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-icon">📩</div>
         <h2 class="modal-title">¡Autoevaluación Enviada!</h2>
         <div class="modal-body" id="modalMessage"></div>
-        <button class="btn-modal" onclick="closeModal()">Aceptar / Continuar</button>
+        <button class="btn-modal" onclick="closeModal('customModal')">Aceptar / Continuar</button>
+    </div>
+</div>
+
+<!-- Modal Login Admin -->
+<div id="adminLoginModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-icon">🔑</div>
+        <h2 class="modal-title">Acceso Docente</h2>
+        <div class="input-group" style="background:transparent; border:none; padding:10px 0;">
+            <input type="password" id="adminPass" placeholder="Ingresa la contraseña...">
+        </div>
+        <button class="btn-modal" onclick="checkAdminPassword()">Ingresar</button>
+        <button class="btn-modal" style="background:#A4B0BE; margin-top:8px;" onclick="closeModal('adminLoginModal')">Cancelar</button>
+    </div>
+</div>
+
+<!-- Modal Dashboard Analytics Admin -->
+<div id="adminDashboardModal" class="modal-overlay">
+    <div class="modal-content admin-dashboard">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2 class="modal-title" style="margin:0;">📊 Panel de Control y Analítica</h2>
+            <button class="btn-modal" style="background:var(--primary); padding:6px 14px;" onclick="closeModal('adminDashboardModal')">✕ Cerrar</button>
+        </div>
+
+        <label for="courseFilter"><strong>Filtrar por Curso:</strong></label>
+        <select id="courseFilter" class="filter-select" onchange="filterDataByCourse()">
+            <option value="TODOS">Todos los Cursos</option>
+            <option value="P1A">P1A</option>
+            <option value="P1B">P1B</option>
+            <option value="P1C">P1C</option>
+            <option value="P2A">P2A</option>
+            <option value="P2B">P2B</option>
+            <option value="P2C">P2C</option>
+            <option value="P3A">P3A</option>
+            <option value="P3B">P3B</option>
+            <option value="P3C">P3C</option>
+        </select>
+
+        <div style="max-height: 200px; margin-bottom:20px;">
+            <canvas id="analyticsChart"></canvas>
+        </div>
+
+        <h3>📋 Registros de Estudiantes</h3>
+        <div style="overflow-x:auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Fecha/Hora</th>
+                        <th>Curso</th>
+                        <th>Estudiante</th>
+                        <th>Total (/10)</th>
+                        <th>Nota (/5)</th>
+                    </tr>
+                </thead>
+                <tbody id="adminTableBody">
+                    <!-- Se llena dinámicamente -->
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -417,15 +527,13 @@
     let submitted = false;
     let savedNombre = '';
     let savedCurso = '';
+    let localDataStore = []; // Almacenamiento local temporal para demostración y analítica en cliente
+    let chartInstance = null;
 
     function setCourse(code, cardElement) {
         document.getElementById('real_course_select').value = code;
         savedCurso = code;
-
-        document.querySelectorAll('.course-card').forEach(card => {
-            card.classList.remove('active');
-        });
-
+        document.querySelectorAll('.course-card').forEach(card => card.classList.remove('active'));
         cardElement.classList.add('active');
     }
 
@@ -438,13 +546,11 @@
         }
 
         let totalPuntos = 0;
-
         for (let i = 1; i <= 5; i++) {
             const selectedOption = document.querySelector(`input[name="p${i}_radio"]:checked`);
             if (selectedOption) {
                 const texto = selectedOption.value;
                 const score = parseInt(selectedOption.getAttribute('data-score'));
-
                 document.getElementById(`p${i}_texto`).value = texto;
                 document.getElementById(`p${i}_puntos`).value = score;
                 totalPuntos += score;
@@ -452,13 +558,21 @@
         }
 
         const notaFinalEntera = Math.round(totalPuntos / 2);
-        
         document.getElementById('suma_puntos').value = Math.round(totalPuntos);
         document.getElementById('nota_final').value = notaFinalEntera;
 
         savedNombre = document.getElementById('studentName').value;
-        submitted = true;
         
+        // Registrar localmente para analítica inmediata
+        localDataStore.push({
+            fecha: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+            curso: courseVal,
+            estudiante: savedNombre,
+            total: Math.round(totalPuntos),
+            nota: notaFinalEntera
+        });
+
+        submitted = true;
         const btn = document.getElementById('btnSubmit');
         btn.disabled = true;
         btn.innerText = 'Enviando respuestas... ⏳';
@@ -468,20 +582,100 @@
         if (submitted) {
             document.getElementById('modalMessage').innerHTML = `¡Muchas gracias, <strong>${savedNombre}</strong> (${savedCurso})!<br><br>Tu autoevaluación ha sido guardada con éxito.`;
             document.getElementById('customModal').style.display = 'flex';
-            
             document.getElementById('evaluationForm').reset();
             document.querySelectorAll('.course-card').forEach(card => card.classList.remove('active'));
             
             const btn = document.getElementById('btnSubmit');
             btn.disabled = false;
             btn.innerText = '🚀 ENVIAR AUTOEVALUACIÓN';
-            
             submitted = false;
         }
     }
 
-    function closeModal() {
-        document.getElementById('customModal').style.display = 'none';
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // LÓGICA DE ADMINISTRACIÓN
+    function openAdminLogin() {
+        document.getElementById('adminPass').value = '';
+        document.getElementById('adminLoginModal').style.display = 'flex';
+    }
+
+    function checkAdminPassword() {
+        const pass = document.getElementById('adminPass').value;
+        if (pass === 'adminroot') {
+            closeModal('adminLoginModal');
+            document.getElementById('adminDashboardModal').style.display = 'flex';
+            renderAdminDashboard();
+        } else {
+            alert('❌ Contraseña incorrecta');
+        }
+    }
+
+    function renderAdminDashboard() {
+        filterDataByCourse();
+    }
+
+    function filterDataByCourse() {
+        const selectedCourse = document.getElementById('courseFilter').value;
+        const tbody = document.getElementById('adminTableBody');
+        tbody.innerHTML = '';
+
+        const filtered = selectedCourse === 'TODOS' 
+            ? localDataStore 
+            : localDataStore.filter(d => d.curso === selectedCourse);
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5">No hay datos registrados aún.</td></tr>';
+        } else {
+            filtered.forEach(row => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${row.fecha}</td>
+                        <td><strong>${row.curso}</strong></td>
+                        <td>${row.estudiante}</td>
+                        <td>${row.total}/10</td>
+                        <td><strong>${row.nota}/5</strong></td>
+                    </tr>
+                `;
+            });
+        }
+
+        renderChart(filtered);
+    }
+
+    function renderChart(data) {
+        const ctx = document.getElementById('analyticsChart').getContext('2d');
+        
+        // Contar frecuencia de notas
+        const scores = [1, 2, 3, 4, 5];
+        const counts = scores.map(s => data.filter(d => d.nota === s).length);
+
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['1 Puntos', '2 Puntos', '3 Puntos', '4 Puntos', '5 Puntos'],
+                datasets: [{
+                    label: 'Cantidad de Estudiantes por Nota Final (/5)',
+                    data: counts,
+                    backgroundColor: '#5352ED',
+                    borderColor: '#2F3542',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
     }
 </script>
 
