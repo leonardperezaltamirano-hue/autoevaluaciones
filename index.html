@@ -128,6 +128,7 @@
             margin-bottom: 10px;
         }
 
+        /* Rejilla de Cursos Adaptable */
         .course-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
@@ -215,6 +216,7 @@
             margin-top: 5px;
         }
 
+        /* Modales Generales */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -251,8 +253,9 @@
             box-shadow: 0 3px 0 #2F3542;
         }
 
+        /* Estilos Adaptables del Dashboard Avanzado */
         .admin-dashboard {
-            max-width: 980px;
+            max-width: 950px;
             width: 100%;
             max-height: 92vh;
             overflow-y: auto;
@@ -318,8 +321,7 @@
         .admin-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.82rem;
-            white-space: nowrap;
+            font-size: 0.85rem;
         }
 
         .admin-table th, .admin-table td {
@@ -330,6 +332,7 @@
 
         .admin-table th { background-color: var(--yellow); font-family: 'Fredoka One', cursive; }
 
+        /* Media Queries para Pantallas Pequeñas */
         @media (max-width: 600px) {
             .options-container { flex-direction: column; }
             .header h1 { font-size: 1.4rem; }
@@ -352,10 +355,13 @@
 
     <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){onSuccess();}"></iframe>
 
-    <!-- REMPLAZAR EL ATRIBUTO ACTION CON TU LINK DE GOOGLE APPS SCRIPT -->
-    <form id="evaluationForm" action="TU_LINK_DE_GOOGLE_APPS_SCRIPT_AQUI" method="POST" target="hidden_iframe">
+    <form id="evaluationForm" action="https://script.google.com/macros/s/AKfycby1uPN7Ngj11QWsOkR2dqalJchJwEgtwZ_6Kmw39kHyK4xoVSjWhy2DlkqwLumBbO7l-g/exec" method="POST" target="hidden_iframe">
         
-        <!-- CAMPOS CON EL ORDEN SOLICITADO -->
+        <div class="input-group">
+            <label for="studentName">👤 Apellidos y Nombres:</label>
+            <input type="text" id="studentName" name="estudiante" required placeholder="Ingresa tu nombre completo...">
+        </div>
+
         <div class="course-section">
             <div class="course-title">🏫 Selecciona tu Curso:</div>
             
@@ -379,19 +385,12 @@
             </div>
         </div>
 
-        <div class="input-group">
-            <label for="studentName">👤 Apellidos y Nombres:</label>
-            <input type="text" id="studentName" name="estudiante" required placeholder="Ingresa tu nombre completo...">
-        </div>
-
-        <!-- Ocultos: Nota Final y desglose de puntos -->
-        <input type="hidden" name="nota_final" id="nota_final">
-        <input type="hidden" name="suma_puntos" id="suma_puntos">
         <input type="hidden" name="p1_texto" id="p1_texto"><input type="hidden" name="p1_puntos" id="p1_puntos">
         <input type="hidden" name="p2_texto" id="p2_texto"><input type="hidden" name="p2_puntos" id="p2_puntos">
         <input type="hidden" name="p3_texto" id="p3_texto"><input type="hidden" name="p3_puntos" id="p3_puntos">
         <input type="hidden" name="p4_texto" id="p4_texto"><input type="hidden" name="p4_puntos" id="p4_puntos">
         <input type="hidden" name="p5_texto" id="p5_texto"><input type="hidden" name="p5_puntos" id="p5_puntos">
+        <input type="hidden" name="suma_puntos" id="suma_puntos"><input type="hidden" name="nota_final" id="nota_final">
 
         <div class="question-card">
             <p class="question-title">1. Uso responsable de herramientas digitales en clase.</p>
@@ -442,7 +441,7 @@
     </form>
 </div>
 
-<!-- Modales -->
+<!-- Modal Éxito Alumno -->
 <div id="customModal" class="modal-overlay">
     <div class="modal-content">
         <div style="font-size:3rem; margin-bottom:5px;">📩</div>
@@ -452,6 +451,7 @@
     </div>
 </div>
 
+<!-- Modal Login Admin -->
 <div id="adminLoginModal" class="modal-overlay">
     <div class="modal-content">
         <div style="font-size:3rem; margin-bottom:5px;">🔑</div>
@@ -464,6 +464,7 @@
     </div>
 </div>
 
+<!-- Modal Dashboard Completo -->
 <div id="adminDashboardModal" class="modal-overlay">
     <div class="modal-content admin-dashboard">
         
@@ -485,6 +486,7 @@
             </select>
         </div>
 
+        <!-- Tarjetas Metricas Rapidas (KPIs) -->
         <div class="kpi-container">
             <div class="kpi-card">
                 <div class="kpi-value" id="kpiTotal">0</div>
@@ -504,6 +506,7 @@
             </div>
         </div>
 
+        <!-- Visualización Analítica Dual -->
         <div class="charts-wrapper">
             <div class="chart-card">
                 <canvas id="scoresChart"></canvas>
@@ -513,21 +516,16 @@
             </div>
         </div>
 
-        <h3 style="font-family:'Fredoka One'; color:var(--purple); margin-bottom:10px;">📋 Registro en Orden Requerido</h3>
+        <h3 style="font-family:'Fredoka One'; color:var(--purple); margin-bottom:10px;">📋 Detalle por Estudiante</h3>
         <div style="overflow-x:auto;">
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th>Fecha y Hora</th>
+                        <th>Hora</th>
                         <th>Curso</th>
                         <th>Estudiante</th>
-                        <th>Nota Final (/5)</th>
                         <th>Puntos (/10)</th>
-                        <th>P1</th>
-                        <th>P2</th>
-                        <th>P3</th>
-                        <th>P4</th>
-                        <th>P5</th>
+                        <th>Nota (/5)</th>
                     </tr>
                 </thead>
                 <tbody id="adminTableBody"></tbody>
@@ -578,12 +576,12 @@
         savedNombre = document.getElementById('studentName').value;
         
         localDataStore.push({
-            fecha: new Date().toLocaleString([], {year:'numeric', month:'2-digit', day:'2-digit', hour: '2-digit', minute:'2-digit'}),
+            fecha: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
             curso: courseVal,
             estudiante: savedNombre,
-            nota: notaFinalEntera,
+            puntosPreguntas: pScores,
             total: Math.round(totalPuntos),
-            puntosPreguntas: pScores
+            nota: notaFinalEntera
         });
 
         submitted = true;
@@ -631,6 +629,7 @@
             ? localDataStore 
             : localDataStore.filter(d => d.curso === selectedCourse);
 
+        // Métricas Rápidas (KPIs)
         const totalEst = filtered.length;
         if (totalEst > 0) {
             const sumNotas = filtered.reduce((acc, current) => acc + current.nota, 0);
@@ -649,13 +648,8 @@
                         <td>${row.fecha}</td>
                         <td><strong>${row.curso}</strong></td>
                         <td>${row.estudiante}</td>
-                        <td><strong>${row.nota}/5</strong></td>
                         <td>${row.total}/10</td>
-                        <td>${row.puntosPreguntas[0]}</td>
-                        <td>${row.puntosPreguntas[1]}</td>
-                        <td>${row.puntosPreguntas[2]}</td>
-                        <td>${row.puntosPreguntas[3]}</td>
-                        <td>${row.puntosPreguntas[4]}</td>
+                        <td><strong>${row.nota}/5</strong></td>
                     </tr>
                 `;
             });
@@ -664,13 +658,14 @@
             document.getElementById('kpiAvg').innerText = '0.0';
             document.getElementById('kpiMax').innerText = '0';
             document.getElementById('kpiMin').innerText = '0';
-            tbody.innerHTML = '<tr><td colspan="10">Sin datos disponibles.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5">Sin datos disponibles.</td></tr>';
         }
 
         renderCharts(filtered);
     }
 
     function renderCharts(data) {
+        // Chart 1: Distribución de Notas
         const ctxScores = document.getElementById('scoresChart').getContext('2d');
         const counts = [1, 2, 3, 4, 5].map(s => data.filter(d => d.nota === s).length);
 
@@ -684,6 +679,7 @@
             options: { responsive: true, maintainAspectRatio: false }
         });
 
+        // Chart 2: Promedio Puntos por Pregunta
         const ctxQuestions = document.getElementById('questionsChart').getContext('2d');
         let pMeans = [0, 0, 0, 0, 0];
         if (data.length > 0) {
@@ -709,9 +705,9 @@
             alert('No hay datos para exportar.');
             return;
         }
-        let csvContent = "data:text/csv;charset=utf-8,Fecha_Hora,Curso,Estudiante,Nota_5,Total_10,P1,P2,P3,P4,P5\n";
+        let csvContent = "data:text/csv;charset=utf-8,Hora,Curso,Estudiante,Total_10,Nota_5\n";
         localDataStore.forEach(d => {
-            csvContent += `"${d.fecha}",${d.curso},"${d.estudiante}",${d.nota},${d.total},${d.puntosPreguntas.join(',')}\n`;
+            csvContent += `${d.fecha},${d.curso},"${d.estudiante}",${d.total},${d.nota}\n`;
         });
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
